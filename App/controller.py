@@ -78,12 +78,19 @@ def loadServices(analyzer, servicesfile):
                 model.addStopConnection(analyzer, lastservice, service)
         lastservice = service
     model.addRouteConnections(analyzer)
+
+    stop_file = csv.DictReader(open(cf.data_dir+'bus_stops.csv','r'),delimiter=',')
+    for stop in stop_file:
+        model.addCoords(analyzer,stop)
+
     return analyzer
 
 # ___________________________________________________
 #  Funciones para consultas
 # ___________________________________________________
 
+def getCoords(analyzer,name):
+    return model.getCoords(analyzer,name)
 
 def totalStops(analyzer):
     """

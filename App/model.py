@@ -54,12 +54,17 @@ def newAnalyzer():
     try:
         analyzer = {
                     'stops': None,
+                    'coords': None,
                     'connections': None,
                     'components': None,
                     'paths': None
                     }
 
         analyzer['stops'] = m.newMap(numelements=14000,
+                                     maptype='PROBING',
+                                     comparefunction=compareStopIds)
+        
+        analyzer['coords'] = m.newMap(numelements=14000,
                                      maptype='PROBING',
                                      comparefunction=compareStopIds)
 
@@ -71,8 +76,17 @@ def newAnalyzer():
     except Exception as exp:
         error.reraise(exp, 'model:newAnalyzer')
 
-
 # Funciones para agregar informacion al grafo
+def addCoords(analyzer,stop):
+    """
+    Agrega a una estacion, una ruta que es servida en ese paradero
+    """
+    entry = m.get(analyzer['coords'], stop['BusStopCode'])
+    lscord = [float(stop['Latitude']),float(stop['Longitude'])]
+    infor = {'coords':lscord,'road':stop['RoadName'],'descr':stop['Description']}
+    m.put(analyzer['coords'], stop['BusStopCode'], infor)
+
+    return analyzer
 
 def addStopConnection(analyzer, lastservice, service):
     """
@@ -162,7 +176,10 @@ def addConnection(analyzer, origin, destination, distance):
 # ==============================
 # Funciones de consulta
 # ==============================
-
+def getCoords(analyzer,name):
+    entry = m.get(analyzer['coords'],name)
+    coords = entry['value']
+    return coords['coords'],coords['road'],coords['descr']
 
 def connectedComponents(analyzer):
     """
